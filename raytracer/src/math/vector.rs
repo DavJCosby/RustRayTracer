@@ -1,15 +1,15 @@
 use std::ops::{Neg, Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign, DivAssign};
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Vec3 {
-    x: f64,
-    y: f64,
-    z: f64,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
 }
 
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
-        Vec3 {x, y, z}
+        Vec3 { x, y, z }
     }
 
     pub fn length(&self) -> f64 {
