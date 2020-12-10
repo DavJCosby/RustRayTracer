@@ -52,19 +52,3 @@ impl Hittable for Sphere {
         Some(data)
     }
 }
-
-/*
-pub fn hit_sphere(s: &Sphere, r: &Ray) -> f64 {
-    let oc = r.origin - s.center;
-    let a = r.direction.length_squared();
-    let half_b = dot(oc, r.direction);
-    let c = oc.length_squared() - s.radius * s.radius;
-    let discriminant = (half_b * half_b) - (a * c);
-
-    if discriminant < 0.0 {
-        return -1.0;
-    } else {
-        return (-half_b - discriminant.sqrt()) / a;
-    }
-}
-*/

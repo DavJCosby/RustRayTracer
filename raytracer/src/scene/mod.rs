@@ -2,7 +2,7 @@ use hit::*;
 
 use crate::{
     math::{ray::Ray, vector::*},
-    objects::{sphere::Sphere, *},
+    shapes::{sphere::Sphere, *},
 };
 
 pub struct Scene {
@@ -34,7 +34,7 @@ impl Scene {
 
 pub fn scene1() -> Scene {
     let mut scene = Scene::new();
-    let sphere = Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5);
+    let sphere = Sphere::new(Point3::new(0.0, -0.05, -1.0), 0.5);
     let ground = Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0);
 
     scene.components.push(Box::new(sphere));
