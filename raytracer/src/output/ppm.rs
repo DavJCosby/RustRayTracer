@@ -3,18 +3,18 @@ use std::io::prelude::*;
 use std::path::Path;
 
 use super::ImageGenerator;
-use crate::math::vector::*;
+use crate::utils::vector::*;
 
 pub struct PPMGenerator {
     path: &'static Path,
-    width: i32,
-    height: i32,
+    width: u32,
+    height: u32,
     max_color: f64,
     pixel_array: Vec<(f64, f64, f64)>,
 }
 
 impl ImageGenerator for PPMGenerator {
-    fn new(file_path: &'static Path, w: i32, h: i32) -> PPMGenerator {
+    fn new(file_path: &'static Path, w: u32, h: u32) -> PPMGenerator {
         let array = vec![(0.0, 0.0, 0.0); (w * h) as usize];
 
         return PPMGenerator {
@@ -26,7 +26,7 @@ impl ImageGenerator for PPMGenerator {
         };
     }
 
-    fn set_pixel(&mut self, coord_xy: (i32, i32), color: Color) {
+    fn set_pixel(&mut self, coord_xy: (u32, u32), color: Color) {
         let index = coord_xy.0 + ((self.height -1 - coord_xy.1) * self.width);
         self.pixel_array[index as usize] = (color.x, color.y, color.z);
     }
@@ -53,9 +53,9 @@ impl PPMGenerator {
         for color in self.pixel_array.iter() {
             out.push_str(&format!(
                 "{} {} {}\n",
-                (color.0 * self.max_color) as i32,
-                (color.1 * self.max_color) as i32,
-                (color.2 * self.max_color) as i32
+                (color.0 * self.max_color) as u32,
+                (color.1 * self.max_color) as u32,
+                (color.2 * self.max_color) as u32
             ));
         }
 

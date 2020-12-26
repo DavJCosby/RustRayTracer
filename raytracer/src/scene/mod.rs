@@ -1,12 +1,14 @@
-use hit::*;
+pub mod camera;
+pub mod materials;
+pub mod shapes;
 
-use crate::{
-    math::{ray::Ray, vector::*},
-    shapes::{sphere::Sphere, *},
-};
+use crate::utils::{ray::Ray, vector::Color};
+use materials::environment::{ColorEnvironment, Environment};
+use shapes::hit::*;
 
 pub struct Scene {
     pub components: Vec<Box<dyn Hittable>>,
+    pub environment: Box<dyn Environment>,
 }
 
 impl Hittable for Scene {
@@ -28,17 +30,11 @@ impl Hittable for Scene {
 impl Scene {
     pub fn new() -> Scene {
         let cmpts: Vec<Box<dyn Hittable>> = Vec::new();
-        Scene { components: cmpts }
+        Scene {
+            components: cmpts,
+            environment: Box::new(ColorEnvironment {
+                color: Color::new(0.7, 0.7, 0.7),
+            }),
+        }
     }
-}
-
-pub fn scene1() -> Scene {
-    let mut scene = Scene::new();
-    let sphere = Sphere::new(Point3::new(0.0, -0.05, -1.0), 0.5);
-    let ground = Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0);
-
-    scene.components.push(Box::new(sphere));
-    scene.components.push(Box::new(ground));
-
-    return scene;
 }
