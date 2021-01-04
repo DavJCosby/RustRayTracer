@@ -74,5 +74,9 @@ pub fn aces(c: Color) -> Color {
 
 #[allow(dead_code)]
 pub fn unreal(x: Color) -> Color {
-    return x / (x + 0.155) * 1.019;
+    let mut c = x / (x + 0.155) * 1.019;
+    c.x = c.x.min(1.0);
+    c.y = c.y.min(1.0);
+    c.z = c.z.min(1.0);
+    return c;
 }
