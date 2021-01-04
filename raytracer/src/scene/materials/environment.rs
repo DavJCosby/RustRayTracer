@@ -13,11 +13,10 @@ pub struct ColorEnvironment {
 }
 
 impl Environment for ColorEnvironment {
-    fn sky_color(&self, r: &Ray) -> Color {
+    fn sky_color(&self, _r: &Ray) -> Color {
         self.color
     }
 }
-
 
 pub struct TexturedEnvironment {
     pub texture: Vec<Rgb<f32>>,

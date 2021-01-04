@@ -32,6 +32,11 @@ impl Vec3 {
             z: self.z.powf(p),
         }
     }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        return (self.x.abs() < s) && (self.y.abs() < s) && (self.z.abs() < s);
+    }
 }
 
 impl Neg for Vec3 {
@@ -132,11 +137,7 @@ impl Div<f64> for Vec3 {
 impl Div<Vec3> for Vec3 {
     type Output = Vec3;
     fn div(self, d: Vec3) -> Vec3 {
-        Vec3::new(
-            1.0 / d.x,
-            1.0 / d.y,
-            1.0 / d.z,
-        ) * self
+        Vec3::new(1.0 / d.x, 1.0 / d.y, 1.0 / d.z) * self
     }
 }
 
@@ -183,8 +184,6 @@ pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
         z: u.x * v.y - u.y * v.x,
     }
 }
-
-
 
 pub type Point3 = Vec3;
 pub type Color = Vec3;

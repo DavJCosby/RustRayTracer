@@ -1,15 +1,23 @@
-use crate::utils::{ray::Ray, vector::*};
+use crate::{
+    scene::materials::material::*,
+    utils::{ray::Ray, vector::*},
+};
 
 use super::hit::*;
 
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
+    pub material: Box<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64) -> Sphere {
-        Sphere { center, radius }
+    pub fn new(center: Point3, radius: f64, material: Box<dyn Material>) -> Sphere {
+        Sphere {
+            center,
+            radius,
+            material,
+        }
     }
 }
 
@@ -47,6 +55,7 @@ impl Hittable for Sphere {
                 true => outward_normal,
                 false => -outward_normal,
             },
+            material: &self.material,
         };
 
         Some(data)

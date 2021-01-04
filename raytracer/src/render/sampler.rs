@@ -9,46 +9,17 @@ use crate::{
 
 use rand::Rng;
 
-fn random_in_unit_sphere() -> Point3 {
-    let mut rng = rand::thread_rng();
-    loop {
-        let p = Vec3::new(
-            rng.gen_range(-1.0, 1.0),
-            rng.gen_range(-1.0, 1.0),
-            rng.gen_range(-1.0, 1.0),
-        );
-        if p.length() >= 1.0 {
-            continue;
-        }
-        return p;
-    }
-}
-
 fn sample_ray(r: &Ray, s: &Scene, depth: u32) -> Color {
     if depth <= 0 {
         return Color::new(0.0, 0.0, 0.0);
     }
     match s.hit(r, CLIP_RANGE) {
         Some(hit_data) => {
-            let target = hit_data.p + hit_data.normal.unit() + random_in_unit_sphere().unit();
-            let new_ray = Ray::new(hit_data.p, (target - hit_data.p).unit());
-            return 0.5 * sample_ray(&new_ray, s, depth - 1);
+            let (scattered, attenuation) = hit_data.material.scatter(r, &hit_data);
+            return attenuation * sample_ray(&scattered, s, depth - 1);
         }
         None => {
             return s.environment.sky_color(r);
-            /*
-            let sky_uv = get_sky_uv(r.direction.unit());
-            //println!("{:?} and {:?}", sky_uv, r);
-            let idx = uv_to_pixel_index(sky_uv, s.environment_size) as usize;
-            let c = match s.environment.get(idx) {
-                Some(x) => x,
-                None => {panic!("couldn't get from env vec: {}", idx)}
-            };
-            Color::new(c.0[0] as f64, c.0[1] as f64, c.0[2] as f64)
-            /*let t = 0.5 * (r.direction.unit().y + 1.0);
-            return (1.0 - t) * Color::new(1.3, 0.0, 0.0) + t * Color::new(0.13, 0.25, 1.75);
-            */
-            */
         }
     }
 }
