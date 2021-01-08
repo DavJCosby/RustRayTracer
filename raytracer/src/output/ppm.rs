@@ -14,13 +14,13 @@ pub struct PPMGenerator {
 }
 
 impl ImageGenerator for PPMGenerator {
-    fn new(file_path: &'static Path, w: u32, h: u32) -> PPMGenerator {
-        let array = vec![(0.0, 0.0, 0.0); (w * h) as usize];
+    fn new(file_path: &'static Path, size: (u32, u32)) -> PPMGenerator {
+        let array = vec![(0.0, 0.0, 0.0); (size.0 * size.1) as usize];
 
         return PPMGenerator {
             path: file_path,
-            width: w,
-            height: h,
+            width: size.0,
+            height: size.1,
             max_color: 255.0,
             pixel_array: array,
         };
