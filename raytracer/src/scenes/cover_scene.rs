@@ -1,7 +1,13 @@
-use std::{fs::File, io::BufReader};
+const RENDER_SETTINGS: RenderSettings = RenderSettings {
+    img_size: (600, 400),
+    samples_per_pixel: 100,
+    max_depth: 16,
+    threads: 12,
+};
 
 use image::{hdr::HdrDecoder, Rgb};
 use rand::{prelude::ThreadRng, Rng};
+use std::{fs::File, io::BufReader};
 
 use crate::{
     render::{
@@ -10,26 +16,17 @@ use crate::{
         scene::Scene,
         shapes::{hit::Hittable, sphere::Sphere},
     },
+    scenes::RenderSettings,
     utils::{ray::Ray, vector::*},
 };
 
-use super::RenderSettings;
-
-const RENDER_SETTINGS: RenderSettings = RenderSettings {
-    img_size: (600, 400),
-    samples_per_pixel: 400,
-    max_depth: 16,
-    threads: 12,
-};
-
-fn generate() -> Scene {
+pub fn generate() -> Scene {
     // Environment setup
     let environment: Box<dyn Environment> = Box::new(HDRIEnvironment {
         texture: fetch_hdr("tex/sky4.hdr"),
         size: (4096, 2048),
         brightness: 1.0,
     });
-    let x = 2;
     // Box::new(environment::DefaultSkyEnvironment {});
 
     // Components setup
@@ -143,6 +140,10 @@ fn generate() -> Scene {
     };
 
     return scene;
+}
+
+pub fn get_render_settings() -> RenderSettings {
+    return RENDER_SETTINGS;
 }
 
 fn fetch_hdr(file_path: &str) -> Vec<Rgb<f32>> {

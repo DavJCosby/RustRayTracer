@@ -1,27 +1,26 @@
-use std::{fs::File, io::BufReader};
+pub const RENDER_SETTINGS: RenderSettings = RenderSettings {
+    img_size: (600, 400),
+    samples_per_pixel: 400,
+    max_depth: 8,
+    threads: 12,
+};
 
 use image::{hdr::HdrDecoder, Rgb};
+use std::{fs::File, io::BufReader};
 
 use crate::{
     render::{
         camera::Camera,
         materials::{environment::*, *},
-        shapes::{hit::Hittable, sphere::Sphere},
         scene::Scene,
+        shapes::{hit::Hittable, sphere::Sphere},
     },
+    scenes::RenderSettings,
     utils::vector::*,
 };
 
-use super::RenderSettings;
-
-const RENDER_SETTINGS: RenderSettings = RenderSettings {
-    img_size: (600, 400),
-    samples_per_pixel: 400,
-    max_depth: 16,
-    threads: 12,
-};
-
 pub fn generate() -> Scene {
+    
     // Environment
     let environment: Box<dyn Environment> = Box::new(environment::HDRIEnvironment {
         texture: fetch_hdr("tex/sky4.hdr"),
@@ -66,10 +65,14 @@ pub fn generate() -> Scene {
         components,
         camera,
         environment,
-        render_settings: RENDER_SETTINGS
+        render_settings: RENDER_SETTINGS,
     };
 
     return scene;
+}
+
+pub fn get_render_settings() -> RenderSettings {
+    return RENDER_SETTINGS;
 }
 
 fn fetch_hdr(file_path: &str) -> Vec<Rgb<f32>> {

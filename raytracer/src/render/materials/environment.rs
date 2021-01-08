@@ -48,7 +48,7 @@ fn uv_to_pixel_index(uv: (f64, f64), size: (u32, u32)) -> u32 {
 
 impl Environment for HDRIEnvironment {
     fn sky_color(&self, r: &Ray) -> Color {
-        let sky_uv = get_sky_uv(r.direction.unit());
+        let sky_uv = get_sky_uv(r.direction);
         let idx = uv_to_pixel_index(sky_uv, self.size) as usize;
         let c = self.texture.get(idx).unwrap().0;
 
