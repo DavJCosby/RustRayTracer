@@ -8,7 +8,7 @@ const RENDER_SETTINGS: RenderSettings = RenderSettings {
 const NUM_COMPONENTS: usize = 488;
 const SEED: u64 = 420;
 
-use image::{hdr::HdrDecoder};
+use image::{codecs::hdr::HdrDecoder};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::{convert::TryInto, fs::File, io::BufReader};
 

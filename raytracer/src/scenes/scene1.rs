@@ -2,12 +2,11 @@ pub const RENDER_SETTINGS: RenderSettings = RenderSettings {
     img_size: (600, 400),
     samples_per_pixel: 1024,
     max_depth: 16,
-    threads: 12,
 };
 
 const NUM_COMPONENTS: usize = 2;
 
-use image::hdr::HdrDecoder;
+use image::codecs::hdr::HdrDecoder;
 use std::{fs::File, io::BufReader, mem};
 
 use crate::{
@@ -23,13 +22,13 @@ use crate::{
 
 pub fn generate<'a>() -> Scene<'a, NUM_COMPONENTS> {
     // Environment
-    let environment = Environment::DefaultSkyEnvironment {};
-    
-    // Environment::HDRIEnvironment {
-    //     texture: &fetch_hdr("tex/sky4.hdr"),
-    //     size: (4096, 2048),
-    //     brightness: 1.0,
-    // };
+    let environment = //Environment::DefaultSkyEnvironment {};
+
+    Environment::HDRIEnvironment {
+        texture: &fetch_hdr("tex/sky4.hdr"),
+        size: (4096, 2048),
+        brightness: 1.0,
+    };
 
     // Components
     let center = Point3::new(0.0, -0.05, -1.0);
