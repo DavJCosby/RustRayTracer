@@ -8,7 +8,7 @@ pub struct HitData<'a> {
     pub normal: Vec3,
     pub dist: f64,
     pub front_face: bool,
-    pub material: &'a Box<dyn Material>,
+    pub material: &'a Material,
 }
 
 pub trait Hittable {

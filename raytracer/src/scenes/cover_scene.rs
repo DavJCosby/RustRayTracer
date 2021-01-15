@@ -1,47 +1,50 @@
 const RENDER_SETTINGS: RenderSettings = RenderSettings {
-    img_size: (600, 400),
-    samples_per_pixel: 100,
+    img_size: (1280, 720),
+    samples_per_pixel: 256,
     max_depth: 16,
     threads: 12,
 };
 
-use image::{hdr::HdrDecoder, Rgb};
-use rand::{prelude::ThreadRng, Rng};
-use std::{fs::File, io::BufReader};
+const NUM_COMPONENTS: usize = 488;
+const SEED: u64 = 420;
+
+use image::{hdr::HdrDecoder};
+use rand::{rngs::StdRng, Rng, SeedableRng};
+use std::{convert::TryInto, fs::File, io::BufReader};
 
 use crate::{
     render::{
         camera::Camera,
-        materials::{environment::*, *},
+        materials::{environment::*, material::Material, *},
         scene::Scene,
-        shapes::{hit::Hittable, sphere::Sphere},
+        shapes::Shape,
     },
     scenes::RenderSettings,
     utils::{ray::Ray, vector::*},
 };
 
-pub fn generate() -> Scene {
+pub fn generate() -> Scene<'static, NUM_COMPONENTS> {
     // Environment setup
-    let environment: Box<dyn Environment> = Box::new(HDRIEnvironment {
-        texture: fetch_hdr("tex/sky4.hdr"),
+    let environment = //Environment::DefaultSkyEnvironment {};
+    Environment::HDRIEnvironment {
+        texture: &fetch_hdr("tex/sky4.hdr"),
         size: (4096, 2048),
         brightness: 1.0,
-    });
-    // Box::new(environment::DefaultSkyEnvironment {});
+    };
 
     // Components setup
-    let mut components: Vec<Box<dyn Hittable>> = Vec::new();
+    let mut components: Vec<Shape> = Vec::new();
 
-    let ground = Sphere {
+    let ground = Shape::Sphere {
         center: Point3::new(0.0, -1000.0, 0.0),
         radius: 1000.0,
-        material: Box::new(material::Lambertian {
+        material: Material::Lambertian {
             albedo: Color::new(0.5, 0.5, 0.5),
-        }),
+        },
     };
-    components.push(Box::new(ground));
+    components.push(ground);
 
-    let mut rng = rand::thread_rng();
+    let mut rng = StdRng::seed_from_u64(SEED);
     for a in -11..11 {
         for b in -11..11 {
             let center = Point3::new(
@@ -55,72 +58,80 @@ pub fn generate() -> Scene {
             match seed {
                 s if s < 0.8 => {
                     // lambertian diffuse
-                    let sphere = Sphere {
+                    let albedo = Color::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>())
+                        * Color::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>());
+
+                    let sphere = Shape::Sphere {
                         center,
                         radius,
-                        material: Box::new(material::Lambertian {
-                            albedo: random_color(rng) * random_color(rng),
-                        }),
+                        material: Material::Lambertian { albedo },
                     };
-                    components.push(Box::new(sphere));
+                    components.push(sphere);
                 }
                 s if s < 0.8 && s >= 0.95 => {
                     // metal
-                    let sphere = Sphere {
+                    let albedo = Color::new(0.5, 0.5, 0.5)
+                        + Color::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()) / 2.0;
+                    let fuzz = rng.gen_range(0.0, 0.5);
+
+                    let sphere = Shape::Sphere {
                         center,
                         radius,
-                        material: Box::new(material::Metal {
-                            albedo: Color::new(0.5, 0.5, 0.5) + random_color(rng) / 2.0,
-                            fuzz: rng.gen_range(0.0, 0.5),
-                        }),
+                        material: Material::Metal { albedo, fuzz },
                     };
-                    components.push(Box::new(sphere));
+                    components.push(sphere);
                 }
                 _ => {
                     // glass
-                    let sphere = Sphere {
+                    let albedo = Color::new(1.0, 1.0, 1.0);
+                    let sphere = Shape::Sphere {
                         center,
                         radius,
-                        material: Box::new(material::Dielectric {
-                            albedo: Color::new(1.0, 1.0, 1.0),
-                            ior: 1.5,
-                        }),
+                        material: Material::Dielectric { albedo, ior: 1.5 },
                     };
-                    components.push(Box::new(sphere));
+                    components.push(sphere);
                 }
             }
         }
     }
 
-    let sphere1 = Sphere {
+    let sphere1 = Shape::Sphere {
         center: Point3::new(0.0, 1.0, 0.0),
         radius: 1.0,
-        material: Box::new(material::Dielectric {
+        material: Material::Dielectric {
             albedo: Color::new(1.0, 1.0, 1.0),
             ior: 1.5,
-        }),
+        },
     };
 
-    let sphere2 = Sphere {
+    let sphere2 = Shape::Sphere {
         center: Point3::new(-4.0, 1.0, 0.0),
         radius: 1.0,
-        material: Box::new(material::Lambertian {
+        material: Material::Lambertian {
             albedo: Color::new(0.4, 0.2, 0.1),
-        }),
+        },
     };
 
-    let sphere3 = Sphere {
+    let sphere3 = Shape::Sphere {
         center: Point3::new(4.0, 1.0, 0.0),
         radius: 1.0,
-        material: Box::new(material::Metal {
+        material: Material::Metal {
             albedo: Color::new(0.7, 0.6, 0.5),
             fuzz: 0.0,
-        }),
+        },
     };
 
-    components.push(Box::new(sphere1));
-    components.push(Box::new(sphere2));
-    components.push(Box::new(sphere3));
+    components.push(sphere1);
+    components.push(sphere2);
+    components.push(sphere3);
+
+    let boxed_slice = components.into_boxed_slice();
+    let boxed_array: Box<[Shape; NUM_COMPONENTS]> = match boxed_slice.try_into() {
+        Ok(ba) => ba,
+        Err(o) => panic!("Expected a Vec of length {} but it was {}", NUM_COMPONENTS, o.len()),
+    }; 
+
+    let components_array = *boxed_array;
 
     // Camera setup
     let origin = Point3::new(13.0, 2.0, 3.0);
@@ -133,7 +144,7 @@ pub fn generate() -> Scene {
     let camera = Camera::new(origin, lookat, vfov, aspect_ratio, aperture, focal_point);
 
     let scene = Scene {
-        components,
+        components: components_array,
         camera,
         environment,
         render_settings: RENDER_SETTINGS,
@@ -146,13 +157,17 @@ pub fn get_render_settings() -> RenderSettings {
     return RENDER_SETTINGS;
 }
 
-fn fetch_hdr(file_path: &str) -> Vec<Rgb<f32>> {
+fn fetch_hdr(file_path: &str) -> &'static [Color] {
     let f = File::open(file_path).unwrap();
     let reader = BufReader::new(f);
     let d = HdrDecoder::new(reader).unwrap();
-    return d.read_image_hdr().unwrap();
-}
+    let vec = d.read_image_hdr().unwrap();
+    let mut vec2: Vec<Color> = Vec::new();
+    for c in vec {
+        let b = c.clone();
+        vec2.push(Color::new(b.0[0] as f64, b.0[1] as f64, b.0[2] as f64));
+    }
 
-fn random_color(mut rng: ThreadRng) -> Color {
-    Color::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>())
+    let static_ref: &'static [Color] = vec2.leak();
+    return static_ref;
 }

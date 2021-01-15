@@ -1,37 +1,45 @@
 use crate::utils::{ray::Ray, vector::*};
-use image::Rgb;
 
 const PI: f64 = std::f64::consts::PI;
 const TAU: f64 = 2.0 * PI;
 
-pub trait Environment {
-    fn sky_color(&self, r: &Ray) -> Color;
+pub enum Environment<'a> {
+    ColorEnvironment {
+        color: Color,
+    },
+    DefaultSkyEnvironment,
+    HDRIEnvironment {
+        texture: &'a [Color],
+        size: (u32, u32),
+        brightness: f64,
+    },
 }
-
-pub struct ColorEnvironment {
-    pub color: Color,
-}
-
-impl Environment for ColorEnvironment {
-    fn sky_color(&self, _r: &Ray) -> Color {
-        self.color
+impl Environment<'_> {
+    pub fn sky_color(&self, r: &Ray) -> Color {
+        match self {
+            Environment::ColorEnvironment { color } => *color,
+            Environment::DefaultSkyEnvironment => default_sky_environment(r),
+            Environment::HDRIEnvironment {
+                texture,
+                size,
+                brightness,
+            } => hdri_environment(*texture, *size, *brightness, r),
+        }
     }
 }
 
-pub struct DefaultSkyEnvironment {}
-
-impl Environment for DefaultSkyEnvironment {
-    fn sky_color(&self, r: &Ray) -> Color {
-        let d = r.direction;
-        let t = 0.5 * (d.y + 1.0);
-        return (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0);
-    }
+fn default_sky_environment(r: &Ray) -> Color {
+    let d = r.direction;
+    let t = 0.5 * (d.y + 1.0);
+    return (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0);
 }
 
-pub struct HDRIEnvironment {
-    pub texture: Vec<Rgb<f32>>,
-    pub size: (u32, u32),
-    pub brightness: f64,
+fn hdri_environment<'a>(texture: &[Color], size: (u32, u32), brightness: f64, r: &Ray) -> Color {
+    let sky_uv = get_sky_uv(r.direction);
+    let idx = uv_to_pixel_index(sky_uv, size) as usize;
+    let c = texture.get(idx).unwrap();
+
+    *c * brightness
 }
 
 fn get_sky_uv(direction: Vec3) -> (f64, f64) {
@@ -44,14 +52,4 @@ fn uv_to_pixel_index(uv: (f64, f64), size: (u32, u32)) -> u32 {
     let x = (uv.0 * size.0 as f64) as u32;
     let y = (uv.1 * size.1 as f64) as u32;
     return x + (size.1 - 1 - y) * size.0;
-}
-
-impl Environment for HDRIEnvironment {
-    fn sky_color(&self, r: &Ray) -> Color {
-        let sky_uv = get_sky_uv(r.direction);
-        let idx = uv_to_pixel_index(sky_uv, self.size) as usize;
-        let c = self.texture.get(idx).unwrap().0;
-
-        Color::new(c[0] as f64, c[1] as f64, c[2] as f64) * self.brightness
-    }
 }
