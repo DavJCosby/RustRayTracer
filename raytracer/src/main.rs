@@ -8,7 +8,7 @@ use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use render::sampler::Sampler;
 use std::{path::Path, sync::mpsc::channel, time::Instant};
 
-use scenes::cover_scene as scene;
+use scenes::scene1 as scene;
 const OUTPUT_LOCATION: &str = "renders/r2.ppm";
 
 fn main() {

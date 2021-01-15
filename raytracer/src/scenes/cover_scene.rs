@@ -2,7 +2,6 @@ const RENDER_SETTINGS: RenderSettings = RenderSettings {
     img_size: (1280, 720),
     samples_per_pixel: 256,
     max_depth: 16,
-    threads: 12,
 };
 
 const NUM_COMPONENTS: usize = 488;
