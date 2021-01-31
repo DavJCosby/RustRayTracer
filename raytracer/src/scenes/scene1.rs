@@ -26,14 +26,14 @@ pub fn generate<'a>() -> Scene<'a, NUM_COMPONENTS> {
 
     Environment::HDRIEnvironment {
         texture: &fetch_hdr("tex/sky4.hdr"),
-        size: (4096, 2048),
+        size: (4096, 2048), // 8388608
         brightness: 1.0,
     };
 
     // Components
     let center = Point3::new(0.0, -0.05, -1.0);
 
-    let mut components: [Shape; NUM_COMPONENTS] = [
+    let components: [Shape; NUM_COMPONENTS] = [
         // Glass Ball
         Shape::Sphere {
             center,
@@ -59,15 +59,12 @@ pub fn generate<'a>() -> Scene<'a, NUM_COMPONENTS> {
     let vfov = 50.0;
     let aperture = 0.025;
     let focal_point = Point3::new(0.0, -0.55, -1.0);
-    let aspect_ratio = RENDER_SETTINGS.img_size.0 as f64 / RENDER_SETTINGS.img_size.1 as f64;
+    let aspect_ratio = RENDER_SETTINGS.img_size.0 as f32 / RENDER_SETTINGS.img_size.1 as f32;
 
     let camera = Camera::new(origin, lookat, vfov, aspect_ratio, aperture, focal_point);
 
     // Scene
-    //components.push(sphere);
 
-    //println!("{}", mem::size_of::<Environment>());
-    //components.push(Box::new(ground));
     let scene = Scene {
         components,
         camera,
@@ -90,7 +87,7 @@ fn fetch_hdr(file_path: &str) -> &'static [Color] {
     let mut vec2: Vec<Color> = Vec::new();
     for c in vec {
         let b = c.clone();
-        vec2.push(Color::new(b.0[0] as f64, b.0[1] as f64, b.0[2] as f64));
+        vec2.push(Color::new(b.0[0], b.0[1], b.0[2]));
     }
 
     let static_ref: &'static [Color] = vec2.leak();

@@ -7,15 +7,15 @@ pub struct Camera {
     horizontal: Vec3,
     vertical: Vec3,
     lower_left_corner: Point3,
-    lens_radius: f64,
+    lens_radius: f32,
     u: Vec3,
     v: Vec3,
 }
 
 fn random_in_unit_disk() -> Vec3 {
     loop {
-        let r1: f64 = random::<f64>() * 2.0 - 1.0;
-        let r2: f64 = random::<f64>() * 2.0 - 1.0;
+        let r1: f32 = random::<f32>() * 2.0 - 1.0;
+        let r2: f32 = random::<f32>() * 2.0 - 1.0;
         let p = Vec3::new(r1, r2, 0.0);
         if p.length_squared() < 1.0 {
             return p;
@@ -27,9 +27,9 @@ impl Camera {
     pub fn new(
         origin: Point3,
         lookat: Point3,
-        vfov: f64,
-        aspect_ratio: f64,
-        aperture: f64,
+        vfov: f32,
+        aspect_ratio: f32,
+        aperture: f32,
         focal_point: Point3,
     ) -> Camera {
         let focus_dist = (origin - focal_point).length();
@@ -63,7 +63,7 @@ impl Camera {
         }
     }
 
-    pub fn get_ray(&self, u: f64, v: f64) -> Ray {
+    pub fn get_ray(&self, u: f32, v: f32) -> Ray {
         let rd = self.lens_radius * random_in_unit_disk();
         let offset = self.u * rd.x + self.v * rd.y;
         Ray::new(

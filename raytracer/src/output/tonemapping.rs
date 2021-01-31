@@ -1,6 +1,6 @@
 use crate::utils::vector::*;
 
-const GAMMA: f64 = 2.2;
+const GAMMA: f32 = 2.2;
 
 // https://64.github.io/tonemapping/
 

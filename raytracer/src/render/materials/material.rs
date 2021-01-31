@@ -10,13 +10,13 @@ pub trait Scatterer {
 }
 
 /// * Lambertian(albedo: Color)
-/// * Metal(albedo: Color, fuzz: f64)
-/// * Lambertian(albedo: Color, ior: f64)
+/// * Metal(albedo: Color, fuzz: f32)
+/// * Lambertian(albedo: Color, ior: f32)
 //#[derive(Copy, Clone)]
 pub enum Material {
     Lambertian { albedo: Color },
-    Metal { albedo: Color, fuzz: f64 },
-    Dielectric { albedo: Color, ior: f64 },
+    Metal { albedo: Color, fuzz: f32 },
+    Dielectric { albedo: Color, ior: f32 },
 }
 
 impl Scatterer for Material {
@@ -40,7 +40,7 @@ fn lambertian(albedo: Color, ray_in: &Ray, hit_data: &HitData) -> (Ray, Color) {
     return (scattered, albedo);
 }
 
-fn metal(albedo: Color, fuzz: f64, ray_in: &Ray, hit_data: &HitData) -> (Ray, Color) {
+fn metal(albedo: Color, fuzz: f32, ray_in: &Ray, hit_data: &HitData) -> (Ray, Color) {
     let reflected = reflect(ray_in.direction, hit_data.normal);
 
     let direction = if fuzz == 0.0 {
@@ -60,7 +60,7 @@ fn metal(albedo: Color, fuzz: f64, ray_in: &Ray, hit_data: &HitData) -> (Ray, Co
     return (scattered, attenuation);
 }
 
-fn dielectric(albedo: Color, ior: f64, ray_in: &Ray, hit_data: &HitData) -> (Ray, Color) {
+fn dielectric(albedo: Color, ior: f32, ray_in: &Ray, hit_data: &HitData) -> (Ray, Color) {
     let refraction_ratio = if hit_data.front_face == true {
         1.0 / ior
     } else {
@@ -103,14 +103,14 @@ fn reflect(v: Vec3, n: Vec3) -> Vec3 {
     v - (2.0 * dot(v, n) * n)
 }
 
-fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
+fn refract(uv: Vec3, n: Vec3, etai_over_etat: f32) -> Vec3 {
     let cos_theta = dot(-uv, n).min(1.0);
     let r_out_perp = etai_over_etat * (uv + cos_theta * n);
     let r_out_parallel = -(1.0 - r_out_perp.length_squared()).abs().sqrt() * n;
     return r_out_perp + r_out_parallel;
 }
 
-fn shlick_reflectance(cosine: f64, ior: f64) -> f64 {
+fn shlick_reflectance(cosine: f32, ior: f32) -> f32 {
     let r0 = ((1.0 - ior) / (1.0 + ior)).powi(2);
     return r0 + (1.0 - r0) * (1.0 - cosine).powi(5);
 }

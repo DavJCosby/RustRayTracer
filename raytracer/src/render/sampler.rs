@@ -1,4 +1,4 @@
-const CLIP_RANGE: (f64, f64) = (0.001, f64::INFINITY);
+const CLIP_RANGE: (f32, f32) = (0.001, f32::INFINITY);
 
 extern crate image;
 
@@ -36,16 +36,16 @@ impl<const N: usize> Sampler<'_, N> {
         let mut color = Color::new(0.0, 0.0, 0.0);
 
         for _ in 0..samples {
-            let rx: f64 = random();
-            let ry: f64 = random();
+            let rx: f32 = random();
+            let ry: f32 = random();
 
-            let u = (pos.0 as f64 + rx) / (self.scene.render_settings.img_size.0 - 1) as f64;
-            let v = (pos.1 as f64 + ry) / (self.scene.render_settings.img_size.1 - 1) as f64;
+            let u = (pos.0 as f32 + rx) / (self.scene.render_settings.img_size.0 - 1) as f32;
+            let v = (pos.1 as f32 + ry) / (self.scene.render_settings.img_size.1 - 1) as f32;
             let r = self.scene.camera.get_ray(u, v);
 
             color += sample_ray(&r, &self.scene, self.scene.render_settings.max_depth);
         }
-        let avg = color / (samples as f64);
+        let avg = color / (samples as f32);
 
         return avg;
     }

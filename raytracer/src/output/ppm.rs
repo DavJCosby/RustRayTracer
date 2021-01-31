@@ -9,8 +9,8 @@ pub struct PPMGenerator {
     path: &'static Path,
     width: u32,
     height: u32,
-    max_color: f64,
-    pixel_array: Vec<(f64, f64, f64)>,
+    max_color: f32,
+    pixel_array: Vec<(f32, f32, f32)>,
 }
 
 impl ImageGenerator for PPMGenerator {

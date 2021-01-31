@@ -24,12 +24,12 @@ use crate::{
 
 pub fn generate() -> Scene<'static, NUM_COMPONENTS> {
     // Environment setup
-    let environment = //Environment::DefaultSkyEnvironment {};
-    Environment::HDRIEnvironment {
-        texture: &fetch_hdr("tex/sky4.hdr"),
-        size: (4096, 2048),
-        brightness: 1.0,
-    };
+    let environment = Environment::DefaultSkyEnvironment {};
+    // Environment::HDRIEnvironment {
+    //     texture: &fetch_hdr("tex/sky4.hdr"),
+    //     size: (4096, 2048),
+    //     brightness: 1.0,
+    // };
 
     // Components setup
     let mut components: Vec<Shape> = Vec::new();
@@ -47,9 +47,9 @@ pub fn generate() -> Scene<'static, NUM_COMPONENTS> {
     for a in -11..11 {
         for b in -11..11 {
             let center = Point3::new(
-                a as f64 + 0.9 * rng.gen::<f64>(),
+                a as f32 + 0.9 * rng.gen::<f32>(),
                 0.2,
-                b as f64 + 0.9 * rng.gen::<f64>(),
+                b as f32 + 0.9 * rng.gen::<f32>(),
             );
             let radius = 0.2;
 
@@ -57,8 +57,8 @@ pub fn generate() -> Scene<'static, NUM_COMPONENTS> {
             match seed {
                 s if s < 0.8 => {
                     // lambertian diffuse
-                    let albedo = Color::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>())
-                        * Color::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>());
+                    let albedo = Color::new(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>())
+                        * Color::new(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>());
 
                     let sphere = Shape::Sphere {
                         center,
@@ -70,7 +70,7 @@ pub fn generate() -> Scene<'static, NUM_COMPONENTS> {
                 s if s < 0.8 && s >= 0.95 => {
                     // metal
                     let albedo = Color::new(0.5, 0.5, 0.5)
-                        + Color::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()) / 2.0;
+                        + Color::new(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>()) / 2.0;
                     let fuzz = rng.gen_range(0.0, 0.5);
 
                     let sphere = Shape::Sphere {
@@ -138,7 +138,7 @@ pub fn generate() -> Scene<'static, NUM_COMPONENTS> {
     let vfov = 20.0;
     let aperture = 0.1;
     let focal_point = Ray::new(origin, lookat - origin).at(10.0);
-    let aspect_ratio = RENDER_SETTINGS.img_size.0 as f64 / RENDER_SETTINGS.img_size.1 as f64;
+    let aspect_ratio = RENDER_SETTINGS.img_size.0 as f32 / RENDER_SETTINGS.img_size.1 as f32;
 
     let camera = Camera::new(origin, lookat, vfov, aspect_ratio, aperture, focal_point);
 
@@ -164,7 +164,7 @@ fn fetch_hdr(file_path: &str) -> &'static [Color] {
     let mut vec2: Vec<Color> = Vec::new();
     for c in vec {
         let b = c.clone();
-        vec2.push(Color::new(b.0[0] as f64, b.0[1] as f64, b.0[2] as f64));
+        vec2.push(Color::new(b.0[0] as f32, b.0[1] as f32, b.0[2] as f32));
     }
 
     let static_ref: &'static [Color] = vec2.leak();

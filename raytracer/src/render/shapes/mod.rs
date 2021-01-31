@@ -9,13 +9,13 @@ use hit::*;
 pub enum Shape {
     Sphere {
         center: Point3,
-        radius: f64,
+        radius: f32,
         material: Material,
     },
 }
 
 impl Hittable for Shape {
-    fn hit(&self, r: &Ray, dist_range: (f64, f64)) -> Option<HitData> {
+    fn hit(&self, r: &Ray, dist_range: (f32, f32)) -> Option<HitData> {
         match self {
             Shape::Sphere {
                 center,
@@ -28,10 +28,10 @@ impl Hittable for Shape {
 
 fn sphere_hit<'a>(
     center: Point3,
-    radius: f64,
+    radius: f32,
     material: &'a Material,
     r: &Ray,
-    dist_range: (f64, f64),
+    dist_range: (f32, f32),
 ) -> Option<HitData<'a>> {
     let oc = r.origin - center;
 
