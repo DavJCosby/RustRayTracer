@@ -9,26 +9,24 @@ pub struct PPMGenerator {
     path: &'static Path,
     width: u32,
     height: u32,
-    max_color: f32,
-    pixel_array: Vec<(f32, f32, f32)>,
+    pixel_array: Vec<(u8, u8, u8)>,
 }
 
 impl ImageGenerator for PPMGenerator {
     fn new(file_path: &'static Path, size: (u32, u32)) -> PPMGenerator {
-        let array = vec![(0.0, 0.0, 0.0); (size.0 * size.1) as usize];
+        let array = vec![(0, 0, 0); (size.0 * size.1) as usize];
 
         return PPMGenerator {
             path: file_path,
             width: size.0,
             height: size.1,
-            max_color: 255.0,
             pixel_array: array,
         };
     }
 
-    fn set_pixel(&mut self, coord_xy: (u32, u32), color: Color) {
-        let index = coord_xy.0 + ((self.height -1 - coord_xy.1) * self.width);
-        self.pixel_array[index as usize] = (color.x, color.y, color.z);
+    fn set_pixel(&mut self, coord_xy: (u32, u32), color: (u8, u8, u8)) {
+        let index = coord_xy.0 + ((self.height - 1 - coord_xy.1) * self.width);
+        self.pixel_array[index as usize] = color;
     }
 
     fn write(&self) {
@@ -51,12 +49,7 @@ impl PPMGenerator {
         let mut out = format!("P3\n{} {}\n255\n", self.width, self.height);
 
         for color in self.pixel_array.iter() {
-            out.push_str(&format!(
-                "{} {} {}\n",
-                (color.0 * self.max_color) as u32,
-                (color.1 * self.max_color) as u32,
-                (color.2 * self.max_color) as u32
-            ));
+            out.push_str(&format!("{} {} {}\n", color.0, color.1, color.2));
         }
 
         return out;
