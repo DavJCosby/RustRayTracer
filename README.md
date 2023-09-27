@@ -1,7 +1,5 @@
 # RustRayTracer
-- A simple raytacer following Peter Shirley's [Raytracing In One Weekend](https://raytracing.github.io/).
-- Features multi-threaded rendering using [rayon](https://crates.io/crates/rayon), a custom (albeit naive) HDR environment map solution, and support for a handful of common tonemappers.
-- For better or for worse all memory used for rendering lives on the stack.
+A simple raytacer following Peter Shirley's [Raytracing In One Weekend](https://raytracing.github.io/). Features multi-threaded rendering using [rayon](https://crates.io/crates/rayon), a custom (albeit naive) HDR environment map solution, and support for a handful of common tonemappers. For better or for worse, all memory used for rendering lives on the stack.
 
 # Gallery
 Basic diffusive material lit by a pretty sunset
